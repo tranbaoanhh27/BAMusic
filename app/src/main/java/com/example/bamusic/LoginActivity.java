@@ -33,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
         GoogleSignInOptions googleSignInOptions =
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestEmail()
-                        .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
+                        // .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
                         .build();
 
         loginClient = GoogleSignIn.getClient(this, googleSignInOptions);
@@ -56,11 +56,15 @@ public class LoginActivity extends AppCompatActivity {
                     Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                     try {
                         MainActivity.userAccount = task.getResult(ApiException.class);
+                        Log.d(TAG, "Now finish LoginActivity");
                         LoginActivity.this.finish();
                     } catch (ApiException e) {
                         Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
                         Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    Log.d(TAG, "GoogleSignIn failed " + Integer.toString(result.getResultCode()));
+                    Toast.makeText(this, "Google Sign In canceled", Toast.LENGTH_SHORT).show();
                 }
             }
     );

@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -20,6 +21,8 @@ import com.google.api.services.drive.DriveScopes;
 import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
+
+    private final String TAG = "MainActivity: ";
 
     public static GoogleSignInAccount userAccount;
 
@@ -58,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         userAccount = GoogleSignIn.getLastSignedInAccount(this);
         if (userAccount == null) {
+            Log.d(TAG, "UserAccount is null");
             Intent loginIntent = new Intent(this, LoginActivity.class);
             startActivity(loginIntent);
         } else {
