@@ -7,18 +7,12 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
-
-import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,30 +24,15 @@ public class MainActivity extends AppCompatActivity {
     private final FavouritesFragment favouritesFragment = new FavouritesFragment();
     private final SettingFragment settingFragment = new SettingFragment();
 
-    @SuppressLint("NonConstantResourceId")
+    private static GoogleDriveHelper googleDriveHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_bar);
-        switchFragment(R.id.main_nav_fragmentView, allSongsFragment);
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.bottom_nav_menu_fav_songs: {
-                    switchFragment(R.id.main_nav_fragmentView, favouritesFragment);
-                    return true;
-                }
-                case R.id.bottom_nav_menu_setting: {
-                    switchFragment(R.id.main_nav_fragmentView, settingFragment);
-                    return true;
-                }
-                default: {
-                    switchFragment(R.id.main_nav_fragmentView, allSongsFragment);
-                    return true;
-                }
-            }
-        });
+        bottomNavigationView.setOnItemSelectedListener(this::onNavigationItemSelected);
     }
 
     @Override
@@ -62,26 +41,42 @@ public class MainActivity extends AppCompatActivity {
         userAccount = GoogleSignIn.getLastSignedInAccount(this);
         if (userAccount == null) {
             Log.d(TAG, "UserAccount is null");
-            Intent loginIntent = new Intent(this, LoginActivity.class);
-            startActivity(loginIntent);
+            startLoginActivity();
         } else {
-            Toast.makeText(this, getString(R.string.login_successfully), Toast.LENGTH_SHORT).show();
-            GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
-                    MainActivity.this,
-                    Collections.singleton(DriveScopes.DRIVE_FILE)
-            );
-            credential.setSelectedAccount(userAccount.getAccount());
-            GoogleDriveHelper.googleDriveService = new Drive.Builder(
-                    AndroidHttp.newCompatibleTransport(),
-                    new GsonFactory(),
-                    credential
-            ).setApplicationName("BAMusic").build();
+            Log.d(TAG, "Google userAccount detected");
+            String message = "Welcome to BAMusic!\n" + userAccount.getEmail();
+            Utilities.showToast(this, message, Toast.LENGTH_LONG);
+            googleDriveHelper = new GoogleDriveHelper(this);
         }
+    }
+
+    private void startLoginActivity() {
+        Log.d(TAG, "Start LoginActivity");
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        startActivity(loginIntent);
     }
 
     private void switchFragment(int container_id, Fragment fragmentObj) {
         getSupportFragmentManager().beginTransaction()
                 .replace(container_id, fragmentObj)
                 .commit();
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    private Boolean onNavigationItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.bottom_nav_menu_fav_songs: {
+                switchFragment(R.id.main_nav_fragmentView, favouritesFragment);
+                return true;
+            }
+            case R.id.bottom_nav_menu_setting: {
+                switchFragment(R.id.main_nav_fragmentView, settingFragment);
+                return true;
+            }
+            default: {
+                switchFragment(R.id.main_nav_fragmentView, allSongsFragment);
+                return true;
+            }
+        }
     }
 }

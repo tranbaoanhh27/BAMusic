@@ -23,23 +23,26 @@ import com.google.api.services.drive.DriveScopes;
 public class LoginActivity extends AppCompatActivity {
 
     private GoogleSignInClient loginClient;
-    private final String TAG = "LoginActivity";
+    private static final String TAG = "LoginActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        loginClient = createGoogleSignInClient();
+        MaterialButton loginButton = findViewById(R.id.login_button);
+
+        loginButton.setOnClickListener(v -> logIn());
+    }
+
+    private GoogleSignInClient createGoogleSignInClient() {
         GoogleSignInOptions googleSignInOptions =
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestEmail()
                         .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
                         .build();
-
-        loginClient = GoogleSignIn.getClient(this, googleSignInOptions);
-
-        MaterialButton loginButton = findViewById(R.id.login_button);
-        loginButton.setOnClickListener(v -> logIn());
+        return GoogleSignIn.getClient(LoginActivity.this, googleSignInOptions);
     }
 
     public void logIn() {
@@ -60,11 +63,11 @@ public class LoginActivity extends AppCompatActivity {
                         LoginActivity.this.finish();
                     } catch (ApiException e) {
                         Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Utilities.showToast(this, e.getMessage(), Toast.LENGTH_LONG);
                     }
                 } else {
-                    Log.d(TAG, "GoogleSignIn failed " + Integer.toString(result.getResultCode()));
-                    Toast.makeText(this, "Google Sign In canceled", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "GoogleSignIn failed " + result.getResultCode());
+                    Utilities.showToast(this, "Google Sign In Canceled", Toast.LENGTH_LONG);
                 }
             }
     );
