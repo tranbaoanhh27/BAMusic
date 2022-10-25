@@ -33,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
         GoogleSignInOptions googleSignInOptions =
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestEmail()
-                        // .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
+                        .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
                         .build();
 
         loginClient = GoogleSignIn.getClient(this, googleSignInOptions);
