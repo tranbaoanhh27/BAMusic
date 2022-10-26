@@ -7,43 +7,43 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Music {
 
     private static final String TAG = Music.class.getSimpleName();
 
-    private String title;
-    private String author;
-    private int duration;   // in milliseconds
-    private Bitmap image;
+    private File file;
     private boolean isFavorite;
+    private String title, artist;
+    private int durationMilliseconds;
+    private Bitmap image;
 
     private static final String LOCAL_MUSIC_FOLDER =
             Environment.DIRECTORY_MUSIC + File.separator + "BAMusic";
 
-    private static ArrayList<Music> allMusics = new ArrayList<Music>();
+    private static ArrayList<Music> allMusics = new ArrayList<>();
 
-    public Music(String title, String author, int duration, Bitmap image) {
-        this(title, author, duration, null, false);
-    }
+    public Music(File file) {
+        this.file = file;
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(file.getAbsolutePath());
 
-    public Music(String title, String author, int duration, Bitmap image, boolean isFavorite) {
-        Log.d(TAG, "Now create a Music object: " + title + " " + author +
-                " " + duration + " " + image + " " + isFavorite);
-        this.title = title;
-        this.author = author;
-        this.duration = duration;
-        this.image = image;
-        this.isFavorite = isFavorite;
+        isFavorite = false;
+        title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        durationMilliseconds = Integer.parseInt(
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        byte[] data = retriever.getEmbeddedPicture();
+        if (data != null) {
+            image = BitmapFactory.decodeByteArray(data, 0, data.length);
+        } else
+            image = null;
     }
 
     public Boolean isExists() {
         for (Music music : allMusics) {
-            if (music.title.equals(this.title) && music.author.equals(this.author)
-                && music.duration == this.duration)
+            if (music.getFilePath().equals(this.getFilePath()))
                 return true;
         }
         return false;
@@ -61,34 +61,11 @@ public class Music {
             if (localMusicsFolder.mkdirs()) Log.d(TAG, "Created Local Musics Folder");
             else Log.d(TAG, "Failed to create Local Musics Folder");
         } else {
-            File[] allMusicFiles = localMusicsFolder.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.toLowerCase().endsWith(".mp3");
-                }
-            });
+            File[] allMusicFiles = localMusicsFolder.listFiles((dir, name)
+                    -> name.toLowerCase().endsWith(".mp3"));
             if (allMusicFiles != null) {
                 for (File musicFile : allMusicFiles) {
-                    String filePath = musicFile.getAbsolutePath();
-                    MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-                    mediaMetadataRetriever.setDataSource(filePath);
-
-                    String songTitle, songAuthor, songDuration;
-                    Bitmap image = null;
-
-                    songTitle = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-                    songAuthor = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                    songDuration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-
-                    byte[] imageData = mediaMetadataRetriever.getEmbeddedPicture();
-                    if (imageData != null) {
-                        image = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-                    } else
-                        Log.d(TAG, "imageData is null");
-
-                    Log.d(TAG, songTitle + " " + songAuthor + " " + songDuration);
-
-                    Music newMusic = new Music(songTitle, songAuthor, Integer.parseInt(songDuration), image);
+                    Music newMusic = new Music(musicFile);
                     if (!newMusic.isExists())
                         allMusics.add(newMusic);
                 }
@@ -96,31 +73,37 @@ public class Music {
         }
     }
 
-    public String getTitle() {
-        return title;
+    public File getFile() {
+        return file;
     }
-    public void setTitle(String title) {
-        this.title = title;
+
+    public String getFilePath() {
+        return file.getAbsolutePath();
     }
-    public String getAuthor() {
-        return author;
-    }
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-    public int getDuration() {
-        return duration;
-    }
-    public void setDuration(int length) {
-        this.duration = length;
-    }
+
     public boolean isFavorite() {
         return isFavorite;
     }
+
     public void setFavorite(boolean favorite) {
         isFavorite = favorite;
     }
-    public Bitmap getImage() { return image; }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public int getDurationMilliseconds() {
+        return durationMilliseconds;
+    }
+
+    public Bitmap getImage() {
+        return image;
+    }
 
     public static ArrayList<Music> getFavoriteSongs() {
         ArrayList<Music> favMusics = new ArrayList<>();

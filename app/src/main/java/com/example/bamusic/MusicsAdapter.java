@@ -1,5 +1,7 @@
 package com.example.bamusic;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -58,30 +61,35 @@ public class MusicsAdapter extends RecyclerView.Adapter<MusicsAdapter.ViewHolder
         if (music != null) {
             if (music.getImage() != null) holder.songImage.setImageBitmap(music.getImage());
             holder.songTitle.setText(music.getTitle());
-            holder.songAuthor.setText(music.getAuthor());
-            holder.songLength.setText(Utilities.milisecToMinute(String.valueOf(music.getDuration())));
-            holder.likeButton.setImageResource(music.isFavorite() ? R.drawable.liked_heart_vector : R.drawable.empty_heart_vector);
+            holder.songAuthor.setText(music.getArtist());
+            holder.songLength.setText(Utilities.millisecondToMinute(music.getDurationMilliseconds()));
+            holder.likeButton.setImageResource(
+                    (music.isFavorite()) ? (R.drawable.liked_heart_vector) : (R.drawable.empty_heart_vector));
 
-            holder.likeButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (music.isFavorite()) {
-                        music.setFavorite(false);
-                        holder.likeButton.setImageResource(R.drawable.empty_heart_vector);
-                        Toast.makeText(view.getContext(), view.getContext().getString(R.string.removed_from_fav), Toast.LENGTH_SHORT).show();
-                    } else {
-                        music.setFavorite(true);
-                        holder.likeButton.setImageResource(R.drawable.liked_heart_vector);
-                        Toast.makeText(view.getContext(), view.getContext().getString(R.string.added_to_fav), Toast.LENGTH_SHORT).show();
-                    }
+            holder.likeButton.setOnClickListener(view -> {
+                if (music.isFavorite()) {
+                    music.setFavorite(false);
+                    holder.likeButton.setImageResource(R.drawable.empty_heart_vector);
+                    Toast.makeText(view.getContext(), view.getContext().getString(R.string.removed_from_fav), Toast.LENGTH_SHORT).show();
+                } else {
+                    music.setFavorite(true);
+                    holder.likeButton.setImageResource(R.drawable.liked_heart_vector);
+                    Toast.makeText(view.getContext(), view.getContext().getString(R.string.added_to_fav), Toast.LENGTH_SHORT).show();
                 }
             });
 
-            holder.songItemContainer.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(view.getContext(), "Clicked on the music", Toast.LENGTH_SHORT).show();
-                }
+            holder.songItemContainer.setOnClickListener(view -> {
+
+                final String AUTHORITY = view.getContext().getApplicationContext()
+                        .getPackageName() + ".provider";
+
+                Uri audioUri = FileProvider.getUriForFile(
+                        view.getContext(), AUTHORITY, music.getFile());
+
+                Intent musicPlayerIntent = new Intent(Intent.ACTION_VIEW);
+                musicPlayerIntent.setDataAndType(audioUri, "audio/mp3");
+
+                view.getContext().startActivity(musicPlayerIntent);
             });
         }
     }

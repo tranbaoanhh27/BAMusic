@@ -30,8 +30,7 @@ public class Utilities {
         }
     }
 
-    public static String milisecToMinute(String milisecs) {
-        int ms = Integer.parseInt(milisecs);
+    public static String millisecondToMinute(int ms) {
         int secs = ms / 1000;
         int minutes = secs / 60;
         secs %= 60;

@@ -13,4 +13,6 @@
     <string name="like_button">Like Button</string>
     <string name="added_to_fav">Added to favorites</string>
     <string name="removed_from_fav">Removed from favorites</string>
+    <string name="reload_local_musics">Reload</string>
+    <string name="reload_local_songs">Reload local songs</string>
 </resources>
