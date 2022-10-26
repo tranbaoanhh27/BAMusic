@@ -17,10 +17,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MusicsAdapter extends RecyclerView.Adapter<MusicsAdapter.ViewHolder> {
 
-    private ArrayList<Music> music;
+    private ArrayList<Music> musics;
 
-    public MusicsAdapter(ArrayList<Music> music) {
-        this.music = music;
+    public MusicsAdapter(ArrayList<Music> musics) {
+        this.musics = musics;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -53,12 +53,13 @@ public class MusicsAdapter extends RecyclerView.Adapter<MusicsAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull MusicsAdapter.ViewHolder holder, int position) {
-        Music music = this.music.get(position);
+        Music music = this.musics.get(position);
 
         if (music != null) {
+            if (music.getImage() != null) holder.songImage.setImageBitmap(music.getImage());
             holder.songTitle.setText(music.getTitle());
             holder.songAuthor.setText(music.getAuthor());
-            holder.songLength.setText(music.getLength());
+            holder.songLength.setText(Utilities.milisecToMinute(String.valueOf(music.getDuration())));
             holder.likeButton.setImageResource(music.isFavorite() ? R.drawable.liked_heart_vector : R.drawable.empty_heart_vector);
 
             holder.likeButton.setOnClickListener(new View.OnClickListener() {
@@ -87,6 +88,6 @@ public class MusicsAdapter extends RecyclerView.Adapter<MusicsAdapter.ViewHolder
 
     @Override
     public int getItemCount() {
-        return music.size();
+        return musics.size();
     }
 }

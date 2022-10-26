@@ -29,4 +29,18 @@ public class Utilities {
             }
         }
     }
+
+    public static String milisecToMinute(String milisecs) {
+        int ms = Integer.parseInt(milisecs);
+        int secs = ms / 1000;
+        int minutes = secs / 60;
+        secs %= 60;
+
+        String strMinutes = "", strSeconds = "";
+        if (minutes < 10) strMinutes = "0";
+        if (secs < 10) strSeconds = "0";
+        strMinutes += String.valueOf(minutes);
+        strSeconds += String.valueOf(secs);
+        return strMinutes + ":" + strSeconds;
+    }
 }

@@ -1,5 +1,8 @@
 package com.example.bamusic;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.os.Environment;
 import android.util.Log;
 
@@ -14,36 +17,36 @@ public class Music {
 
     private String title;
     private String author;
-    private String length;
+    private int duration;   // in milliseconds
+    private Bitmap image;
     private boolean isFavorite;
 
     private static final String LOCAL_MUSIC_FOLDER =
             Environment.DIRECTORY_MUSIC + File.separator + "BAMusic";
 
-    private static ArrayList<Music> allMusics = new ArrayList<Music>(
-            Arrays.asList(
-                    new Music("Em của ngày hôm qua", "Sơn Tùng MTP", "3:03"),
-                    new Music("Nắng ấm xa dần", "Sơn Tùng MTP", "3:08"),
-                    new Music("Lạc trôi", "Sơn Tùng MTP", "4:16"),
-                    new Music("Ánh nắng của anh", "Đức Phúc", "4:16"),
-                    new Music("Nàng thơ", "Hoàng Dũng", "4:16"),
-                    new Music("Đi về nhà", "Đen", "4:16"),
-                    new Music("Hãy trao cho anh", "Sơn Tùng MTP", "4:16"),
-                    new Music("Chiếc ố thần kì", "Chi Pu", "1 triệu năm"),
-                    new Music("Ánh sao và bầu trời", "Không biết", "4:16"),
-                    new Music("Bảo Anh đẹp trai", "Bảo Anh", "4:16")
-            )
-    );
+    private static ArrayList<Music> allMusics = new ArrayList<Music>();
 
-    public Music(String title, String author, String length) {
-        this(title, author, length, false);
+    public Music(String title, String author, int duration, Bitmap image) {
+        this(title, author, duration, null, false);
     }
 
-    public Music(String title, String author, String length, boolean isFavorite) {
+    public Music(String title, String author, int duration, Bitmap image, boolean isFavorite) {
+        Log.d(TAG, "Now create a Music object: " + title + " " + author +
+                " " + duration + " " + image + " " + isFavorite);
         this.title = title;
         this.author = author;
-        this.length = length;
+        this.duration = duration;
+        this.image = image;
         this.isFavorite = isFavorite;
+    }
+
+    public Boolean isExists() {
+        for (Music music : allMusics) {
+            if (music.title.equals(this.title) && music.author.equals(this.author)
+                && music.duration == this.duration)
+                return true;
+        }
+        return false;
     }
 
     public static ArrayList<Music> getAllMusics() {
@@ -51,6 +54,7 @@ public class Music {
     }
 
     public static void updateLocalMusics() {
+        allMusics.clear();
         Log.d(TAG, "Local Musics Folder:" + LOCAL_MUSIC_FOLDER);
         File localMusicsFolder = Environment.getExternalStoragePublicDirectory(LOCAL_MUSIC_FOLDER);
         if (!localMusicsFolder.exists()) {
@@ -65,7 +69,28 @@ public class Music {
             });
             if (allMusicFiles != null) {
                 for (File musicFile : allMusicFiles) {
-                    Log.d(TAG, musicFile.getName());
+                    String filePath = musicFile.getAbsolutePath();
+                    MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+                    mediaMetadataRetriever.setDataSource(filePath);
+
+                    String songTitle, songAuthor, songDuration;
+                    Bitmap image = null;
+
+                    songTitle = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                    songAuthor = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                    songDuration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+
+                    byte[] imageData = mediaMetadataRetriever.getEmbeddedPicture();
+                    if (imageData != null) {
+                        image = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
+                    } else
+                        Log.d(TAG, "imageData is null");
+
+                    Log.d(TAG, songTitle + " " + songAuthor + " " + songDuration);
+
+                    Music newMusic = new Music(songTitle, songAuthor, Integer.parseInt(songDuration), image);
+                    if (!newMusic.isExists())
+                        allMusics.add(newMusic);
                 }
             }
         }
@@ -83,11 +108,11 @@ public class Music {
     public void setAuthor(String author) {
         this.author = author;
     }
-    public String getLength() {
-        return length;
+    public int getDuration() {
+        return duration;
     }
-    public void setLength(String length) {
-        this.length = length;
+    public void setDuration(int length) {
+        this.duration = length;
     }
     public boolean isFavorite() {
         return isFavorite;
@@ -95,6 +120,7 @@ public class Music {
     public void setFavorite(boolean favorite) {
         isFavorite = favorite;
     }
+    public Bitmap getImage() { return image; }
 
     public static ArrayList<Music> getFavoriteSongs() {
         ArrayList<Music> favMusics = new ArrayList<>();
