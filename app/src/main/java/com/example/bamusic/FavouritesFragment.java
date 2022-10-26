@@ -24,9 +24,9 @@ public class FavouritesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_favourites, container, false);
 
         RecyclerView songsRecyclerView = (RecyclerView) view.findViewById(R.id.fav_song_recyclerview);
-        ArrayList<Song> favoriteSongs = Song.getFavoriteSongs();
-        SongsAdapter songsAdapter = new SongsAdapter(favoriteSongs);
-        songsRecyclerView.setAdapter(songsAdapter);
+        ArrayList<Music> favoriteMusics = Music.getFavoriteSongs();
+        MusicsAdapter musicsAdapter = new MusicsAdapter(favoriteMusics);
+        songsRecyclerView.setAdapter(musicsAdapter);
         songsRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
 
         return view;

@@ -10,7 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class AllSongsFragment extends Fragment {
+public class AllMusicsFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -22,8 +22,8 @@ public class AllSongsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_all_songs, container, false);
 
         RecyclerView songsRecyclerView = (RecyclerView) view.findViewById(R.id.all_songs_recyclerview);
-        SongsAdapter songsAdapter = new SongsAdapter(Song.allSongs);
-        songsRecyclerView.setAdapter(songsAdapter);
+        MusicsAdapter musicsAdapter = new MusicsAdapter(Music.getAllMusics());
+        songsRecyclerView.setAdapter(musicsAdapter);
         songsRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
 
         return view;

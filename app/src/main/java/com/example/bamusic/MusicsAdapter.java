@@ -1,13 +1,9 @@
 package com.example.bamusic;
 
-import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,12 +15,12 @@ import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> {
+public class MusicsAdapter extends RecyclerView.Adapter<MusicsAdapter.ViewHolder> {
 
-    private ArrayList<Song> songs;
+    private ArrayList<Music> music;
 
-    public SongsAdapter(ArrayList<Song> songs) {
-        this.songs = songs;
+    public MusicsAdapter(ArrayList<Music> music) {
+        this.music = music;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -49,31 +45,31 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
 
     @NonNull
     @Override
-    public SongsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MusicsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View songView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recyclerview_item_song, parent, false);
         return new ViewHolder(songView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SongsAdapter.ViewHolder holder, int position) {
-        Song song = songs.get(position);
+    public void onBindViewHolder(@NonNull MusicsAdapter.ViewHolder holder, int position) {
+        Music music = this.music.get(position);
 
-        if (song != null) {
-            holder.songTitle.setText(song.getTitle());
-            holder.songAuthor.setText(song.getAuthor());
-            holder.songLength.setText(song.getLength());
-            holder.likeButton.setImageResource(song.isFavorite() ? R.drawable.liked_heart_vector : R.drawable.empty_heart_vector);
+        if (music != null) {
+            holder.songTitle.setText(music.getTitle());
+            holder.songAuthor.setText(music.getAuthor());
+            holder.songLength.setText(music.getLength());
+            holder.likeButton.setImageResource(music.isFavorite() ? R.drawable.liked_heart_vector : R.drawable.empty_heart_vector);
 
             holder.likeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (song.isFavorite()) {
-                        song.setFavorite(false);
+                    if (music.isFavorite()) {
+                        music.setFavorite(false);
                         holder.likeButton.setImageResource(R.drawable.empty_heart_vector);
                         Toast.makeText(view.getContext(), view.getContext().getString(R.string.removed_from_fav), Toast.LENGTH_SHORT).show();
                     } else {
-                        song.setFavorite(true);
+                        music.setFavorite(true);
                         holder.likeButton.setImageResource(R.drawable.liked_heart_vector);
                         Toast.makeText(view.getContext(), view.getContext().getString(R.string.added_to_fav), Toast.LENGTH_SHORT).show();
                     }
@@ -83,7 +79,7 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
             holder.songItemContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(view.getContext(), "Clicked on the song", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(view.getContext(), "Clicked on the music", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -91,6 +87,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return songs.size();
+        return music.size();
     }
 }
